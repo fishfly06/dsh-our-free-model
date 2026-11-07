@@ -230,9 +230,9 @@ export function assertEngineMutation(method, pathname, input) {
   if (verb === 'GET' || verb === 'HEAD' || verb === 'OPTIONS') return
   const body = input && typeof input === 'object' && !ArrayBuffer.isView(input) ? input : {}
   const refuse = () => { throw Object.assign(new Error(POLICY_REFUSED), { statusCode: 403 }) }
-  if (PLUGIN_OPS.test(pathname) && deniedText(body.spec)) refuse()
+  if (PLUGIN_OPS.test(pathname) && (deniedAny(body.providers) || deniedText(body.spec) || deniedText(body.name))) refuse()
   // Re-enabling is a way in; switching off is the way out and stays allowed.
-  if (pathname === '/api/plugins/off' && body.off === false && deniedText(body.spec)) refuse()
+  if (pathname === '/api/plugins/off' && body.off === false && (deniedAny(body.providers) || deniedText(body.spec) || deniedText(body.name))) refuse()
   if (/^\/api\/plugin-signin(?:\/prompt)?$/.test(pathname) && deniedId(body.provider)) refuse()
   if ((pathname === '/api/signin' || pathname === '/api/signin/import') && deniedId(body.agent)) refuse()
   if (/^\/api\/login\/[^/]+$/.test(pathname) && deniedId(body.agent)) refuse()
